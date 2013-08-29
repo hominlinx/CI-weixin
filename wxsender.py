@@ -211,9 +211,21 @@ class HTTPHeaderPrint(BaseHandler):
     https_request = http_request
     https_response = http_response
 
-if __name__ == '__main__':
+def sendByFakeid(fakeid,msg = "Hello World."):
     wxs = WXSender()
-    #wxs.run_test("abc@abc.com","abc")
-    wxs.run_test("gaosibei@126.com","244168abc")
-    #wxs.run_test("daoluanxiaozi@126.com","a123456")
-    
+    wxs.login("gaosibei@126.com","244168abc")
+    wxs.get_fakeid()
+    wxs.get_friend_fakeid()
+    wxs.sender_fakeid(fakeid,msg)
+
+def sendGroup(msg):
+    wxs = WXSender()
+    wxs.login("gaosibei@126.com","244168abc")
+    wxs.get_fakeid()
+    wxs.get_friend_fakeid()
+    wxs.group_sender(msg)
+
+if __name__ == '__main__':
+    #wxs = WXSender()
+    #wxs.run_test("gaosibei@126.com","244168abc")
+    sendByFakeid("2201337020","test")
