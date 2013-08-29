@@ -1,6 +1,15 @@
 # coding: UTF-8
 import urllib2,cookielib,re
-import json
+#import json
+
+
+import java
+import sys
+import types
+import unittest
+
+from com.xhaus.jyson import JysonCodec as json
+
 import hashlib
 from urllib import URLopener
 
@@ -74,7 +83,9 @@ class WXSender:
         req = urllib2.Request(url)
         req.add_header('cookie',self.wx_cookie)
         
-        data = urllib2.urlopen(req,timeout = 4).read()
+        #data = urllib2.urlopen(req,timeout = 4).read()
+        data = urllib2.urlopen(req).read()
+        
         
         m = re.search(r'fakeid = "(\d+)"',data,re.S | re.I)
         
@@ -225,7 +236,7 @@ def sendGroup(msg):
     wxs.get_friend_fakeid()
     wxs.group_sender(msg)
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     #wxs = WXSender()
     #wxs.run_test("gaosibei@126.com","244168abc")
-    sendByFakeid("2201337020","test")
+#    sendByFakeid("2201337020","test")
