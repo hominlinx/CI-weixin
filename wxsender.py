@@ -1,15 +1,6 @@
 # coding: UTF-8
 import urllib2,cookielib,re
-#import json
-
-
-import java
-import sys
-import types
-import unittest
-
-from com.xhaus.jyson import JysonCodec as json
-
+import json
 import hashlib
 from urllib import URLopener
 
@@ -83,12 +74,14 @@ class WXSender:
         req = urllib2.Request(url)
         req.add_header('cookie',self.wx_cookie)
         
-        #data = urllib2.urlopen(req,timeout = 4).read()
-        data = urllib2.urlopen(req).read()
+        data = urllib2.urlopen(req,timeout = 4).read()
         
-        
+        print ' %s lenth is %d ' %(str(data),len(data))
         m = re.search(r'fakeid = "(\d+)"',data,re.S | re.I)
+        n = re.search(r'userAgent =',data,re.S | re.I)
         
+        print type(n)
+        print n.group()
         # group(0) == [fakeid = "123456789"]
         if not m:
             raise Exception("Getting fakeid failed.")
@@ -96,7 +89,27 @@ class WXSender:
         self.user_fakeid = m.group(1)
         
         goodboy(self.get_fakeid.__name__)
-        
+    def getfakeid(self,openid):
+        if not (self.wx_cookie and self.token and self.user_fakeid):
+            raise Exception("Cookies or token or user_fakeid is missing.")
+        # 获取 friend fakeid
+        base_url = ('https://mp.weixin.qq.com/cgi-bin/contactmanage?t=user/index&lang=zh_CN&pagesize=50' + 
+                    '&type=0&groupid=0' + 
+                    '&token=' + self.token + 
+                    '&pageidx=')    # pageidx = ?
+
+
+    def compare_fakeid(self,fakeid,openid):
+        base_url = ('https://mp.weixin.qq.com/cgi-bin/singlemsgpage?token=%s&fromfakeid=%s'
+                '&msgid=&source=&count=50&t=wxm-singlechat&lang=zh_CN') %(self.token,fakeid)
+        req = urllib2.Request(base_url)
+        req.add_header('cookie',self.wx_cookie)
+        data = urllib2.urlopen(req).read()
+        p = re.compile(r'"content" : (.*)')
+        res = p.findall(data)
+        print res
+
+
     def get_friend_fakeid(self):
         if not (self.wx_cookie and self.token and self.user_fakeid):
             raise Exception("Cookies,token or user_fakeid is missing.")
@@ -120,6 +133,7 @@ class WXSender:
             data = urllib2.urlopen(req).read()
             p = re.compile(r'"id":([0-9]{4,20})')
             res = p.findall(data)
+            print res
             if not res:
                 break  
             
@@ -199,12 +213,14 @@ class WXSender:
         # 获取微信公众账号 fakeid
         self.get_fakeid()
         
+       # self.get_fakeid("fd")
         # 获取微信好友的所有 fakeid，保存再 self.friend_info 中
         self.get_friend_fakeid()
         
+        self.compare_fakeid("2201337020","fd")
         # 群发接口：目前只能发送文本信息
         #self.group_sender("test")
-        self.sender_fakeid("2201337020","testh")
+        #self.sender_fakeid("2201337020","testh")
         
 from urllib2 import BaseHandler, build_opener
 class HTTPHeaderPrint(BaseHandler):
@@ -222,21 +238,9 @@ class HTTPHeaderPrint(BaseHandler):
     https_request = http_request
     https_response = http_response
 
-def sendByFakeid(fakeid,msg = "Hello World."):
+if __name__ == '__main__':
     wxs = WXSender()
-    wxs.login("gaosibei@126.com","244168abc")
-    wxs.get_fakeid()
-    wxs.get_friend_fakeid()
-    wxs.sender_fakeid(fakeid,msg)
-
-def sendGroup(msg):
-    wxs = WXSender()
-    wxs.login("gaosibei@126.com","244168abc")
-    wxs.get_fakeid()
-    wxs.get_friend_fakeid()
-    wxs.group_sender(msg)
-
-#if __name__ == '__main__':
-    #wxs = WXSender()
-    #wxs.run_test("gaosibei@126.com","244168abc")
-#    sendByFakeid("2201337020","test")
+    #wxs.run_test("abc@abc.com","abc")
+    wxs.run_test("gaosibei@126.com","244168abc")
+    #wxs.run_test("daoluanxiaozi@126.com","a123456")
+    
